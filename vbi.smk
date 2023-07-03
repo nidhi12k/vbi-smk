@@ -36,7 +36,7 @@ localrules:
 
 rule all:
     input:
-        expand("{sample}/{sample}.selfSM", sample=manifest_df.index),
+        expand("results/{sample}/{sample}.selfSM", sample=manifest_df.index),
 
 
 rule run_pileup:
@@ -45,7 +45,7 @@ rule run_pileup:
         bed=get_bed,
         bam_file=get_bam,
     output:
-        pileup="{sample}/{sample}.pile",
+        pileup="results/{sample}/{sample}.pile",
     threads: 1
     resources:
         mem=8,
@@ -68,7 +68,7 @@ rule run_vbi:
         ref=REFERENCE,
         svdprefix=check_svd_files,
     output:
-        selfsm="{sample}/{sample}.selfSM",
+        selfsm="results/{sample}/{sample}.selfSM",
     resources:
         mem=20,
         hrs=1200,
