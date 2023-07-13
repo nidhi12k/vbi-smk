@@ -27,16 +27,17 @@ def check_svd_files(wildcards):
 
 
 wildcard_constraints:
-    sample="|".join(manifest_df.index)
+    sample="|".join(manifest_df.index),
 
 
 localrules:
     all,
+    vbi_summary,
 
 
 rule all:
     input:
-        expand("results/{sample}/{sample}.selfSM", sample=manifest_df.index),
+        "vbi_summary.tsv",
 
 
 rule run_pileup:
@@ -84,4 +85,16 @@ rule run_vbi:
     shell:
         """
         VerifyBamID --PileupFile {input.pileup_files} --SVDPrefix {params.svdprefix} --NumThread {threads} --Reference {input.ref} --Output $( echo {output.selfsm} | sed 's/.selfSM//' )
+        """
+
+
+rule vbi_summary:
+    input:
+        sm_all=expand("results/{sample}/{sample}.selfSM", sample=manifest_df.index),
+    output:
+        vbi_summary="vbi_summary.tsv",
+    shell:
+        """
+        head -1 {input.sm_all[0]} | cut -f 1,6-9 > {output.vbi_summary}
+        for file in $( echo {input.sm_all} ); do sample=$(basename ${{file}} | awk -F "." '{{print $1}}' ); tail -n +2 ${{file}} | sed "s/DefaultSampleName/${{sample}}/" | cut -f 1,6-9; done >> {output.vbi_summary}
         """
