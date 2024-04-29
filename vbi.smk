@@ -49,14 +49,10 @@ rule run_pileup:
         pileup="results/{sample}/{sample}.pile",
     threads: 1
     resources:
-        mem=8,
+        mem=16,
         hrs=12,
-    envmodules:
-        "modules",
-        "modules-init",
-        "modules-gs/prod",
-        "modules-eichler/prod",
-        "samtools/1.17",
+    singularity:
+        "docker://eichlerlab/binf-basics:0.1"
     shell:
         """
         samtools mpileup -B -f {input.ref} -l {input.bed} {input.bam_file} -o {output.pileup}
@@ -71,17 +67,13 @@ rule run_vbi:
     output:
         selfsm="results/{sample}/{sample}.selfSM",
     resources:
-        mem=20,
+        mem=8,
         hrs=1200,
-    threads: 4
+    threads: 8
     params:
         svdprefix=SVDPREFIX,
-    envmodules:
-        "modules",
-        "modules-init",
-        "modules-gs/prod",
-        "modules-eichler/prod",
-        "vbi/2.0.1",
+    singularity:
+        "docker://eichlerlab/vbi:2.0.1"
     shell:
         """
         VerifyBamID --PileupFile {input.pileup_files} --SVDPrefix {params.svdprefix} --NumThread {threads} --Reference {input.ref} --Output $( echo {output.selfsm} | sed 's/.selfSM//' )
